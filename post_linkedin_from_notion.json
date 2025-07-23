@@ -1,0 +1,345 @@
+{
+  "name": "post_linkedin_from_notion",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "PUB_STAT|select",
+              "selectValue": "PUB"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4c5c60f8-c69c-41e2-bfaf-895adba0aed2",
+      "name": "Update post status in notion database",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        240,
+        700
+      ],
+      "typeVersion": 2.2,
+      "executeOnce": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        320
+      ],
+      "id": "32b31048-99a1-41e9-be2f-96779af4a902",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.AGG_SUM }}",
+        "options": {
+          "systemMessage": "You are an experienced writer.\nYou receive as input the aggregated summaries (\"AGG_SUM\") from several newsletter summaries.\nThe input is already in bullet point format and contains some linke to original sources.\nYou have the following tasks:\n- Task1: identify the most important information passed on to you in the input. Keep in mind that there can be overlaps on specific subject, as they can be part of several newsletters. Make sure you cover any relevant identified subject only once. \n- Task2: Write a summary of your findings in the format of a professionally sounding blog post that is suitable to be published on LinkedIn. You can also used bullet point to structure your output, but are not obliged to do so. Support the major content highlights of your summary with the links provided to you in the input. \n- Task3: You must absolutely respect the 3000 character limitation for LinkedIn posts. If the input is too long for a meaningful summary of all points in the input, prioritize and only keep those items that you consider more important and discard the less important ones from your output.\n- Task4: Last, but very imporatant: when you are finished with Tasks 1 to 3 above, translate your result to German and edit your translation to likewise fit a professional audience.\n\nDu mußt sicherstellen, daß Dein finaler Output auf Deutsch und nur und ausschließlich auf Deutsch ist.\nStelle auf jeden Fall sicher, daß dein gesamtes Endergebnis nicht länger als 3000 Zeichen ist. Die initiale englische Zusammenfassung sollte schon im Bereich von 3000 Zeichen liegen. Daher ist für die deutsche Version möglicherweise eine weitere Kürzung des Textes notwendig, da Deutsch im Allgemeinen mehr Zeichen als Englisch für den gleichen Inhalt benötigt. Gehe entsprechend vor, priorisiere und entferne ggf. Punkte von geringerer Bedeutung um innherhalb der Begrenzung von 3000 Zeichen zu bleiben. Bedenke dabei, daß Leerzeichen ebenfalls gegen dieses Limit zählen.\nDein Output muß letztlich ein professioneller und übersichtlicher Überblick über die wichtigsten KI-Themen sein, der mit den Links zu den Ursprungsquellen versehen sind.\nBeginne Deinen Output auf jeden Fall und ausnahmslos mit folgendem Vor-Text, dem du dann deine nach obigem Schema erstellte Zusammenfassung nachstellen kannst:\n„Die KI-gestützten Zusammenfassung aktueller US-Newsletter zum Thema KI der letzten Tage (erstellt mit n8n.io):\"\nVerzichte auf Schlußformulierungen oder weitere Zusammenfassungen, z.Bsp. der Quellen, um Platz zu sparen. Stelle stattdessen sicher, daß du die erlaubte Antwortlänge von 3000 Zeichen nicht überschreitest.",
+          "maxIterations": 12,
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        700,
+        320
+      ],
+      "id": "619ee668-4906-4ad3-8fa2-834f9902b1c2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        720,
+        500
+      ],
+      "id": "19e4855b-cc31-40fa-b39e-11999708c571",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "xxxxxxxxxxxxxxxxxxxxxxxxx",
+          "mode": "list",
+          "cachedResultName": "n8n-nl-db",
+          "cachedResultUrl": "https://www.notion.so/xxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "key": "NL_Date|date",
+              "condition": "after",
+              "date": "2024-12-27T00:00:00"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c80c1b30-c514-4ae8-9eff-7b5bf197bce6",
+      "name": "DB_DATE_Filter",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        40,
+        320
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "operation": "getAll",
+        "blockId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $json.url }}"
+        },
+        "returnAll": true
+      },
+      "id": "a277c38c-166c-443d-8f3e-5b71236560d2",
+      "name": "Get_All_Blocks",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        240,
+        320
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "content",
+              "renameField": true,
+              "outputFieldName": "AGG_SUM"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fc787d1e-038e-4fca-a23a-80978ad1be05",
+      "name": "Aggregate all Notion blocks",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        440,
+        320
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7bac8d70-9dcf-4d1a-99fa-23f73a33e6ca",
+              "leftValue": "={{ $json.output.length }}",
+              "rightValue": 3000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        320
+      ],
+      "id": "ca69beaf-2792-4447-8da0-75b2bbcdeaaf",
+      "name": "SizeCheck"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over all input items\nconst items = $input.all().map(item => {\n  const inputString = item.json.output;\n\n  // Truncate the string to 3000 characters if it exceeds that length\n  const truncatedString = inputString.length > 3000 ? inputString.slice(0, 3000) : inputString;\n\n  // Update and return the modified item\n  item.json.output = truncatedString;\n  return item;\n});\n\n// Return all modified items\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        240
+      ],
+      "id": "1bc6b890-efc3-495a-94b3-968b9c5ee589",
+      "name": "Truncation"
+    },
+    {
+      "parameters": {
+        "person": "fwPtLYw1yD",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "id": "db8d903e-0199-442e-966a-9c032a49f511",
+      "name": "Publish on LinkedIn Short",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [
+        1380,
+        440
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "person": "fwPtLYw1yD",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "id": "64e76bfe-7af2-4efc-8eae-3bf3938717be",
+      "name": "Publish on LinkedIn shortened",
+      "type": "n8n-nodes-base.linkedIn",
+      "position": [
+        1380,
+        240
+      ],
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "DB_DATE_Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "SizeCheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB_DATE_Filter": {
+      "main": [
+        [
+          {
+            "node": "Get_All_Blocks",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update post status in notion database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_All_Blocks": {
+      "main": [
+        [
+          {
+            "node": "Aggregate all Notion blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate all Notion blocks": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SizeCheck": {
+      "main": [
+        [
+          {
+            "node": "Truncation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Publish on LinkedIn Short",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Truncation": {
+      "main": [
+        [
+          {
+            "node": "Publish on LinkedIn shortened",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6ef42f2f-568a-4aad-8c5c-7dbbf9b3686e",
+  "meta": {
+    "instanceId": "56e0c874a90d9e9086d6a1bd571b5aa541fe0cf937a6bc3ed5d9b31a22a5d97f"
+  },
+  "id": "XIP6Qc4gOBoG9EEk",
+  "tags": []
+}
