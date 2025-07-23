@@ -1,0 +1,556 @@
+{
+  "name": "summarization_chain_from_imap_to notion",
+  "nodes": [
+    {
+      "parameters": {
+        "chunkSize": 1500,
+        "chunkOverlap": 200,
+        "options": {
+          "splitCode": "html"
+        }
+      },
+      "id": "dfce2406-926d-430c-9d08-d82e99a0827e",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('UNSEEN_IMAP_EMAILS').item.json.textPlain }}",
+        "options": {}
+      },
+      "id": "eecc1cd2-141d-4aeb-b08e-44b16519d602",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "608a235d-690e-4a39-86a3-e4d25db0b00c",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "xxxxxxxxxxxxxxxxxxxxxxxxx",
+          "mode": "list",
+          "cachedResultName": "n8n-nl-db",
+          "cachedResultUrl": "https://www.notion.so/xxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        "title": "={{ $('If_SOURCE_FILTER').item.json.from }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "NL_Date|date",
+              "includeTime": false,
+              "date": "={{ $('UNSEEN_IMAP_EMAILS').item.json.date }}"
+            },
+            {
+              "key": "NL_GLANCE|rich_text",
+              "textContent": "={{ $json.response.text.split(\" \").slice(0, 35).join(\" \")}}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.response.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        140,
+        740
+      ],
+      "id": "51739069-1877-4301-90bc-e908bf9597c7",
+      "name": "Notion"
+    },
+    {
+      "parameters": {
+        "jsCode": "let result = [];\n// Iterate through each item in the input array\n$input.all().forEach((item, index) => {\n let firstBlock = true;\n const text = item.json.response.text;\n // Get the corresponding FROM and DATE from UNSEEN_IMAP_EMAILS\n const fromEmail = $('IF1_SizeChecker').all()[index].json.from;\n const emailDate = $('IF1_SizeChecker').all()[index].json.date;\n // Split each text into chunks of 1950 characters\n for (let i = 0; i < text.length; i += 1950) {\n result.push({\n \"textSubString\": text.substring(i, i + 1950),\n \"firstBlock\": firstBlock,\n \"from\": fromEmail,\n \"date\": emailDate\n });\n firstBlock = false;\n }\n});\nreturn result;"
+      },
+      "id": "6d642787-cf6d-4076-908b-95c6f33a00e3",
+      "name": "Splits text in small chuncks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        120,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "ec98e7a3-b223-4379-a354-57b6bc967c53",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        780,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "url",
+              "stringValue": "={{ $json.url }}"
+            }
+          ]
+        },
+        "include": "none",
+        "options": {}
+      },
+      "id": "3186d0ce-8da1-4ff1-9c4b-e169102d0a8d",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "xxxxxxxxxxxxxxxxxxxxxxxxx",
+          "mode": "list",
+          "cachedResultName": "n8n-nl-db",
+          "cachedResultUrl": "https://www.notion.so/xxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        "title": "={{ $('If_SOURCE_FILTER').item.json.from }}",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "NL_Date|date",
+              "includeTime": false,
+              "date": "={{ $json.date }}"
+            },
+            {
+              "key": "NL_GLANCE|rich_text",
+              "textContent": "={{ $json.textSubString.split(\" \").slice(0, 35).join(\" \")}}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.textSubString }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c8e26a29-9808-4eb5-bdf5-1dfbacae1495",
+      "name": "Creates the page and adds the first part of text",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $json.url }}",
+          "mode": "url"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $json.textSubString }}"
+            }
+          ]
+        }
+      },
+      "id": "35e27a30-b22f-4dab-bb19-a424f3a949cb",
+      "name": "Adds additional blocks",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [
+        940,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.firstBlock }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "1a921f87-2234-445b-b883-7ee6fb3f23f1",
+      "name": "IF2_BlockSwitcher",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        300,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.response.text.length() }}",
+              "operation": "larger",
+              "value2": 1950
+            }
+          ]
+        }
+      },
+      "id": "d657634b-1f0e-403d-a05b-551e17577f6a",
+      "name": "IF1_SizeChecker",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6553c348-1f14-4185-a1dd-f028692f3a0d",
+              "leftValue": "={{ $json.date}}",
+              "rightValue": "2024-12-29T00:00:00",
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1000,
+        460
+      ],
+      "id": "7ee438af-5da6-4d01-babe-2c4cbbb5c9c5",
+      "name": "If_DATE_FILTER"
+    },
+    {
+      "parameters": {
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        -1180,
+        460
+      ],
+      "id": "b0c916a8-70e1-4e00-810d-31fc28a9906f",
+      "name": "UNSEEN_IMAP_EMAILS"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ace46cc5-c4be-468d-99a8-540c74d504f7",
+              "leftValue": "={{ $json.from }}",
+              "rightValue": "AlphaSignal <news@alphasignal.ai>",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "9a338992-9ae3-4348-b448-023ec438159e",
+              "leftValue": "={{ $json.from }}",
+              "rightValue": "Horizon AI <mail@joinhorizon.ai>",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "49a0d96f-d464-4ced-8933-a4a6f466a81a",
+              "leftValue": "={{ $json.from }}",
+              "rightValue": "Last Week in AI <lastweekinai+podcast@substack.com>",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "47500963-0cfb-4996-a72a-cd715d2c6ad5",
+              "leftValue": "={{ $json.from }}",
+              "rightValue": "The Neuron <theneuron@newsletter.theneurondaily.com>",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -780,
+        460
+      ],
+      "id": "2f4a00e6-7dd2-48f8-b133-ccffb112ae74",
+      "name": "If_SOURCE_FILTER"
+    },
+    {
+      "parameters": {
+        "operationMode": "documentLoader",
+        "options": {
+          "summarizationMethodAndPrompts": {
+            "values": {
+              "summarizationMethod": "stuff",
+              "prompt": "=Capture a concise summary of the newsletter in bullet point format.\nMaintain information on product names, company names and original URLs by enforcing these rules for every bullet point:\n- maintain names of companies and products as in the original text.\n- include minimum one link with the URL to the original source for this information. If you cannot find any such URL for the item, specify \"[NO LINK FOUND]“. Do not invent any URL yourself that is not in the original text.\n- Delete bullet points that contain obvious advertising or that reference the newsletter itself, e.g. explaining how to unsubscribe from the newsletter.#\nPerform these tasks on the following newsletter text:\n„{{ $json.textPlain }}“"
+            }
+          }
+        }
+      },
+      "id": "b92a1be8-537c-46eb-a29f-9fda231be7a2",
+      "name": "Summarization Chain STUFF",
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "typeVersion": 2,
+      "position": [
+        -500,
+        440
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization Chain STUFF",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Summarization Chain STUFF",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Splits text in small chuncks": {
+      "main": [
+        [
+          {
+            "node": "IF2_BlockSwitcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Adds additional blocks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creates the page and adds the first part of text": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF2_BlockSwitcher": {
+      "main": [
+        [
+          {
+            "node": "Creates the page and adds the first part of text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "IF1_SizeChecker": {
+      "main": [
+        [
+          {
+            "node": "Splits text in small chuncks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If_DATE_FILTER": {
+      "main": [
+        [
+          {
+            "node": "If_SOURCE_FILTER",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UNSEEN_IMAP_EMAILS": {
+      "main": [
+        [
+          {
+            "node": "If_DATE_FILTER",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If_SOURCE_FILTER": {
+      "main": [
+        [
+          {
+            "node": "Summarization Chain STUFF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Chain STUFF": {
+      "main": [
+        [
+          {
+            "node": "IF1_SizeChecker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d38b7b2b-28ad-4984-aa1f-a828e0c7f8a1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "56e0c874a90d9e9086d6a1bd571b5aa541fe0cf937a6bc3ed5d9b31a22a5d97f"
+  },
+  "id": "mB6yerJHRWmDGU6j",
+  "tags": []
+}
