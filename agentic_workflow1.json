@@ -1,0 +1,169 @@
+{
+  "name": "agentic_workflow1",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0342c1a6-d073-4b37-809e-05106cb65e51",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ya8d7KIEwUVD7ynj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You will be given the content of an email. Your task is to extract the Invoice ID and the Total Amount to Pay from the following email:\n{{ $json.snippet }}\nIf either field is missing or unclear, return null for that field. "
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        220,
+        0
+      ],
+      "id": "dbad9681-054b-4f2c-a947-8211a1cb5526",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "LLOdNIEFBen2wc1D",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ztMpOhW1Z9Kht-nJhIbmnBgXZm3EMavGxauxMVBaH-U",
+          "mode": "list",
+          "cachedResultName": "n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ztMpOhW1Z9Kht-nJhIbmnBgXZm3EMavGxauxMVBaH-U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "bills",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ztMpOhW1Z9Kht-nJhIbmnBgXZm3EMavGxauxMVBaH-U/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "invoice": "={{ $json.choices[0].message.content[\"Invoice ID\"] }}",
+            "total": "={{ $json.choices[0].message.content[\"Total Amount to Pay\"] }}"
+          },
+          "matchingColumns": [
+            "invoice"
+          ],
+          "schema": [
+            {
+              "id": "invoice",
+              "displayName": "invoice",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "total",
+              "displayName": "total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        580,
+        0
+      ],
+      "id": "3f7fcd94-4188-495b-8199-5088cb4ef60c",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VGLfw1n7HK6Yi53O",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62047417-43c3-4ff6-8082-185887bc6173",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "56e0c874a90d9e9086d6a1bd571b5aa541fe0cf937a6bc3ed5d9b31a22a5d97f"
+  },
+  "id": "W3ZYkXL790lfkY3o",
+  "tags": []
+}
