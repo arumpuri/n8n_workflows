@@ -1,0 +1,141 @@
+{
+  "name": "summarize_youtube_video",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "Apify API_KEY Here ???",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"startUrls\": [\n        \"{{ $json['Full URL'] }}\"\n    ]\n}",
+        "options": {}
+      },
+      "id": "0433e766-e8c4-49d0-b5ef-0dae3ed7d802",
+      "name": "Request YouTube Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        320,
+        260
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {},
+      "id": "c16542c6-5e26-4f8b-ad19-c435b62bf975",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        900,
+        260
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "82bd13ad-2d1a-472a-9ccf-3330d71de854",
+      "name": "Summarization of a YouTube script",
+      "type": "@n8n/n8n-nodes-langchain.chainSummarization",
+      "position": [
+        560,
+        260
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "formTitle": "Summarize YouTube video's",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full URL"
+            }
+          ]
+        },
+        "options": {
+          "path": "ddd"
+        }
+      },
+      "id": "400a2f9d-3f5d-422b-93b8-9487db4308ff",
+      "name": "YouTube video URL",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        100,
+        260
+      ],
+      "webhookId": "3dc17600-3020-40b1-be8f-e65ef45269b6",
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "baf1befa-fe71-42ae-a7e5-ee1fa9894a66",
+      "name": "Summarization Engine",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        560,
+        440
+      ],
+      "typeVersion": 1.1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "YouTube video URL": {
+      "main": [
+        [
+          {
+            "node": "Request YouTube Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization Engine": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarization of a YouTube script",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request YouTube Transcript": {
+      "main": [
+        [
+          {
+            "node": "Summarization of a YouTube script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization of a YouTube script": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "079212b9-fbfb-4d3c-afed-979f67947579",
+  "meta": {
+    "instanceId": "56e0c874a90d9e9086d6a1bd571b5aa541fe0cf937a6bc3ed5d9b31a22a5d97f"
+  },
+  "id": "iNGCc1JJrSe1r70y",
+  "tags": []
+}
