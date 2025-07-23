@@ -1,0 +1,408 @@
+{
+  "name": "costumer onboarding automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-onboarding-start",
+        "options": {}
+      },
+      "id": "173cbddc-ba37-4f44-ab35-91f3d47f65b6",
+      "name": "New Customer Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -620,
+        860
+      ],
+      "webhookId": "customer-onboarding-start",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "resource": "contact",
+        "operation": "create"
+      },
+      "id": "fd6fcb1f-34dd-4816-bda1-eb5b45bdc66e",
+      "name": "Create HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        -140,
+        820
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "send"
+      },
+      "id": "0d4ea7ff-2c83-448c-9653-7091b7f67883",
+      "name": "Send Team Notification",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        140,
+        740
+      ],
+      "webhookId": "e319793b-83b0-4b4e-8cf5-af921cc0e9ec",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "subject": "Welcome to [Company Name] - Your Journey Starts Here! 🎉",
+        "options": {}
+      },
+      "id": "01f112a7-a936-4bbe-9e0d-2543e5034d48",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        140,
+        940
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "id": "1837cb47-ce9c-4b22-a465-255f30a4ddcb",
+      "name": "Wait 2 Hours",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        440,
+        840
+      ],
+      "webhookId": "ed102052-76a3-4302-a179-f8e09d0f7aed",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "subject": "Your Onboarding Documents Are Ready! 📋",
+        "options": {}
+      },
+      "id": "3bb92611-8413-4d48-b3d2-60f3a0892c42",
+      "name": "Send Onboarding Documents",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        740,
+        840
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "unit": "days"
+      },
+      "id": "564d1319-0579-47c5-a616-389b24a3ba00",
+      "name": "Wait 1 Day",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1040,
+        840
+      ],
+      "webhookId": "c37979cb-b222-4f35-a0f9-b7dff99ccea8",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "update"
+      },
+      "id": "15691add-0db8-4e3b-8995-18251aba4fd8",
+      "name": "Update CRM Status",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        1340,
+        740
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "subject": "How's your first day going? 🌟",
+        "options": {
+          "replyTo": "success@company.com"
+        }
+      },
+      "id": "9cb41585-0974-4acb-8446-a2476112c1a7",
+      "name": "Send Personal Check-in",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        1340,
+        940
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "days"
+      },
+      "id": "e0b0abc4-34ed-48a9-b8ea-e7c67f454142",
+      "name": "Wait 2 More Days",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1640,
+        840
+      ],
+      "webhookId": "4d254f31-2974-4d7b-8669-0f1df857209a",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "subject": "Your Week 1 Success Guide + Exclusive Training 🎯",
+        "options": {}
+      },
+      "id": "ef1f5757-7171-49c8-8ff3-802393acd2cb",
+      "name": "Send Week 1 Success Guide",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        2200,
+        820
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "update"
+      },
+      "id": "c504e725-da2c-4f27-ab6a-0d945512f292",
+      "name": "Mark Week 1 Complete",
+      "type": "n8n-nodes-base.hubspot",
+      "position": [
+        2420,
+        580
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "send"
+      },
+      "id": "c517df7b-964f-4a42-8520-24dd50455120",
+      "name": "Notify Team of Completion",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        2480,
+        1020
+      ],
+      "webhookId": "00e4a472-30f4-4f63-a96e-8c3deb69c704",
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1f5e1a0-8c2e-4d1f-9b3a-7e6d5c4b3a21",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.email }}",
+              "rightValue": ""
+            },
+            {
+              "id": "d2g6f2b1-9d3f-5e2g-ac4b-8f7e6d5c4b32",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.customerName }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ce107cec-323f-4659-a49e-42918f85d004",
+      "name": "Validate Required Fields",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -380,
+        860
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "send"
+      },
+      "id": "5f89cb55-85d3-4cdc-ad97-77605d6f955c",
+      "name": "Send Validation Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -300,
+        1180
+      ],
+      "webhookId": "70027811-eb7c-4092-a728-e161bca136b5",
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {
+    "New Customer Webhook": [
+      {
+        "json": {
+          "email": "sarah.johnson@email.com",
+          "phone": "+1-555-123-4567",
+          "source": "website",
+          "package": "Premium",
+          "signupDate": "2024-07-04",
+          "customerName": "Sarah Johnson"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Wait 1 Day": {
+      "main": [
+        [
+          {
+            "node": "Update CRM Status",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Personal Check-in",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 Hours": {
+      "main": [
+        [
+          {
+            "node": "Send Onboarding Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 More Days": {
+      "main": [
+        [
+          {
+            "node": "Send Week 1 Success Guide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Customer Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Required Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create HubSpot Contact": {
+      "main": [
+        [
+          {
+            "node": "Send Team Notification",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Personal Check-in": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 More Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Required Fields": {
+      "main": [
+        [
+          {
+            "node": "Create HubSpot Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Validation Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Onboarding Documents": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Week 1 Success Guide": {
+      "main": [
+        [
+          {
+            "node": "Mark Week 1 Complete",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Team of Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "543c5701-97b2-4d0c-9906-0e2076221f5a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "56e0c874a90d9e9086d6a1bd571b5aa541fe0cf937a6bc3ed5d9b31a22a5d97f"
+  },
+  "id": "sGzLpBUPLw3qllFT",
+  "tags": []
+}
