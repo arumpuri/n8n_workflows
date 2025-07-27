@@ -27,7 +27,19 @@ These workflows combine **agents** with **retrieval mechanisms** to fetch releva
 
 ---
 
-## 🖼️ Example Workflows
+## 🖼️ Example Node Workflows
+
+### Ordinary Node
+These represent standard automation components in n8n—used for tasks such as parsing data, making HTTP requests, or handling logic flows.
+
+<img width="813" height="399" alt="Screenshot from 2025-07-27 11-28-24" src="https://github.com/user-attachments/assets/c63612d0-f047-456c-96d6-4297280378e3" />
+
+### AI-powered Node
+These nodes integrate with LLMs (e.g., OpenAI, Hugging Face) and tools like vector search to enable intelligent responses, content generation, or decision-making. They are often embedded within larger workflows to enhance automation with reasoning and adaptability.
+
+<img width="886" height="268" alt="Screenshot from 2025-07-27 11-26-23" src="https://github.com/user-attachments/assets/f50f0880-9105-47c4-b583-4b35bbfbc09f" />
+<img width="727" height="415" alt="Screenshot from 2025-07-27 11-26-57" src="https://github.com/user-attachments/assets/5be2a421-8a2d-4029-a609-8bb9eb9239bb" />
+<img width="569" height="428" alt="Screenshot from 2025-07-27 11-27-19" src="https://github.com/user-attachments/assets/b8f53416-1430-4a4c-b0d6-93101f93f1c1" />
 
 
 ---
